@@ -6,7 +6,8 @@
   --border:        #3b4261;
   --fg:            #c0caf5;  /* main text */
   --fg-dim:        #a9b1d6;
-  --comment:       #565f89;  /* muted text, inactive */
+  --comment:       #8089b3;  /* muted text, inactive — lightened from #565f89 for AA (5.0:1 on --bg) */
+  --comment-dim:   #565f89;  /* original Tokyo Night comment: decoration only, never text */
 
   --accent:        #9ece6a;  /* PRIMARY: prompt, links, active items, cursor */
   --accent-2:      #73daca;  /* secondary green-teal: headings, keys in neofetch */
