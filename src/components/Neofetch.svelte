@@ -5,17 +5,7 @@
 
   let { projects }: { projects: readonly Project[] } = $props();
 
-  // Split each logo line into runs so the "7" and the package get different colors.
-  const logo = chipLogo().map((line) => {
-    const runs: { text: string; glyph: boolean }[] = [];
-    for (const ch of line) {
-      const glyph = ch === "█";
-      const last = runs.at(-1);
-      if (last && last.glyph === glyph) last.text += ch;
-      else runs.push({ text: ch, glyph });
-    }
-    return runs;
-  });
+  const logo = chipLogo();
 
   // Field order follows real neofetch. Computed fields can be overridden (or extended) in profile.neofetch.
   const ORDER = ["OS", "Host", "Kernel", "Uptime", "Packages", "Shell", "DE", "Location", "Contact"];
@@ -43,8 +33,8 @@
 
 <div class="neofetch">
   <div class="logo" aria-hidden="true">
-    {#each logo as runs, i (i)}
-      <div>{#each runs as r, j (j)}<span class:glyph={r.glyph}>{r.text}</span>{/each}</div>
+    {#each logo as line, i (i)}
+      <div>{#each line as r, j (j)}<span class={r.ink ?? undefined}>{r.text}</span>{/each}</div>
     {/each}
   </div>
 
@@ -85,14 +75,27 @@
   }
 
   .logo {
-    color: var(--accent-3);
-    /* Hack's natural line height, so box-drawing characters connect vertically. */
-    line-height: 1.164;
+    /* line-height 1: block and box-drawing glyphs overlap a hair, so there are no seams between rows. */
+    line-height: 1;
     white-space: pre;
   }
 
-  .glyph {
+  /* Runs of █ drawn as one filled box each: no hairline seams between cells. */
+  .block {
+    background: var(--accent);
+    color: transparent;
+  }
+
+  .fill {
     color: var(--accent);
+  }
+
+  .shade {
+    color: var(--comment-dim);
+  }
+
+  .frame {
+    color: var(--accent-3);
   }
 
   .info {

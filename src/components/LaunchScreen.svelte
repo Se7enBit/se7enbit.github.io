@@ -6,6 +6,8 @@
   import { desktop, motion } from "../lib/desktop.svelte";
 
   const art = banner(profile.name);
+  // Widest row, used to scale the banner so it always fits the viewport.
+  const cols = Math.max(0, ...art.map((line) => line.reduce((n, r) => n + r.text.length, 0)));
   let start: HTMLButtonElement;
 
   onMount(() => {
@@ -25,7 +27,13 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <div class="launch" role="presentation" onclick={() => desktop.launch()} out:fade|global={{ duration: motion(120) }}>
   <div class="content">
-    <pre class="banner" aria-hidden="true">{art}</pre>
+    {#if art.length}
+      <pre class="banner" style:--cols={cols} aria-hidden="true">{#each art as line, i (i)}{#each line as r, j (j)}<span
+              class={r.ink ?? undefined}>{r.text}</span
+            >{/each}{"\n"}{/each}</pre>
+    {:else}
+      <p class="name" aria-hidden="true">{profile.name}</p>
+    {/if}
     <p class="tagline">{profile.title}</p>
     <p class="prompt">
       <span class="ps1">guest@portfolio:~$</span> startx<span class="cursor" aria-hidden="true"></span>
@@ -61,10 +69,31 @@
     margin: 0 0 0.5rem;
     overflow: hidden;
     color: var(--accent);
-    font-size: clamp(8px, 2.6vw, 18px);
+    /* Fit the widest row into the viewport (Hack advance ≈ 0.6em), capped at 16px. */
+    font-size: min(16px, calc((100vw - 2.5rem) / (var(--cols) * 0.6)));
+    /* line-height 1 + slightly negative tracking: blocks overlap a hair, so no seams between cells. */
     line-height: 1;
-    /* Overlap block glyphs slightly so antialiasing doesn't leave seams between cells. */
-    letter-spacing: -0.03em;
+    letter-spacing: -0.02em;
+  }
+
+  /* Runs of █ drawn as one filled box each: no hairline seams between cells. */
+  .block {
+    background: var(--accent);
+    color: transparent;
+  }
+
+  .fill {
+    color: var(--accent);
+  }
+
+  .shade {
+    color: var(--comment-dim);
+  }
+
+  .name {
+    color: var(--accent);
+    font-size: 2rem;
+    font-weight: 700;
   }
 
   .tagline {
