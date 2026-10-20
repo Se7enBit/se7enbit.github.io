@@ -1,0 +1,25 @@
+# build output
+dist/
+
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+
+# build-time GitHub API cache (see src/lib/github.ts)
+.cache/
+
+# logs
+npm-debug.log*
+
+# environment variables
+.env
+.env.*
+
+# editors / OS
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/

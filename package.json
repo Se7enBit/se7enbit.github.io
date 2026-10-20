@@ -1,0 +1,27 @@
+{
+  "name": "se7enbit-github-io",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Terminal-styled portfolio for se7enbit.github.io",
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
+    "@astrojs/svelte": "^9.1.0",
+    "astro": "^7.4.1",
+    "svelte": "^5.57.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.11",
+    "typescript": "^6.0.3"
+  }
+}
