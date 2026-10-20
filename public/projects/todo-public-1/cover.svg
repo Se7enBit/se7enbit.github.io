@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <rect width="1280" height="720" fill="#1a1b26"/>
+  <rect x="8" y="8" width="1264" height="704" fill="none" stroke="#3b4261" stroke-width="4" stroke-dasharray="16 12"/>
+  <text x="640" y="350" fill="#9ece6a" font-family="Hack, monospace" font-size="56" text-anchor="middle">todo-public-1/cover</text>
+  <text x="640" y="420" fill="#a9b1d6" font-family="Hack, monospace" font-size="28" text-anchor="middle">TODO: replace this placeholder</text>
+</svg>

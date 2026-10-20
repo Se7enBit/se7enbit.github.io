@@ -1,35 +1,98 @@
 ---
 import Base from "../layouts/Base.astro";
+import { profile } from "../data/profile";
+import { getProjects } from "../lib/projects";
 
-// Placeholder until the data layer (Phase 2) provides real profile info.
-const title = "guest@se7enbit: ~";
-const description = "Terminal-styled portfolio — TODO description from profile.";
+const projects = await getProjects();
+
+const title = `${profile.name} — ${profile.title}`;
+const description = profile.bio;
 ---
 
 <Base title={title} description={description}>
-  <main id="main" class="scaffold">
-    <p>
-      <span class="prompt">guest@se7enbit:~$</span> startx<span class="cursor" aria-hidden="true"></span>
-    </p>
-    <p class="hint"># scaffold ready — desktop coming in later phases</p>
+  <main id="main" class="page">
+    <h1><span class="prompt">guest@{profile.handle}:~$</span> ls projects</h1>
+
+    <!-- Phase 2: plain HTML list proving the data layer. Replaced by the desktop UI later. -->
+    <ul class="projects">
+      {
+        projects.map((p) => (
+          <li id={p.id}>
+            <h2>
+              {p.title}
+              {p.featured && <span class="badge">★ featured</span>}
+              {p.private && <span class="badge">🔒 private</span>}
+            </h2>
+            <p class="meta">
+              id: {p.id} · source: {p.source}
+              {p.github && (
+                <>
+                  {" "}· <a href={p.github.url}>{p.github.repo}</a>
+                  {p.github.stars !== undefined && <> · ★ {p.github.stars}</>}
+                  {p.github.language && <> · {p.github.language}</>}
+                  {!p.github.fetched && <> · (not fetched)</>}
+                </>
+              )}
+              {p.status && <> · {p.status}</>}
+              {p.date && <> · {p.date}</>}
+            </p>
+            {p.description && <p>{p.description}</p>}
+            {p.tags.length > 0 && <p class="tags">{p.tags.map((t) => <span>[{t}]</span>)}</p>}
+            {p.links.length > 0 && (
+              <p>
+                {p.links.map((l) => (
+                  <a href={l.url}>{l.label}</a>
+                ))}
+              </p>
+            )}
+            {p.media.length > 0 && <p class="meta">media: {p.media.map((m) => m.type).join(", ")}</p>}
+          </li>
+        ))
+      }
+    </ul>
   </main>
 </Base>
 
 <style>
-  .scaffold {
-    display: grid;
-    place-content: center;
-    gap: 0.5rem;
-    min-height: 100dvh;
-    padding: 1rem;
+  .page {
+    max-width: 72ch;
+    margin: 0 auto;
+    padding: 2rem 1rem;
   }
 
   .prompt {
     color: var(--accent);
-    font-weight: 700;
   }
 
-  .hint {
+  .projects {
+    display: grid;
+    gap: 1.25rem;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .projects li {
+    display: grid;
+    gap: 0.25rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+  }
+
+  .badge {
+    margin-left: 0.75rem;
+    color: var(--yellow);
+    font-weight: 400;
+  }
+
+  .meta {
     color: var(--fg-dim);
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    color: var(--accent);
   }
 </style>
