@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://se7enbit.github.io/sitemap-index.xml

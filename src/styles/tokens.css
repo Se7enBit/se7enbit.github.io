@@ -1,0 +1,29 @@
+/* Tokyo Night, green-accented. Single theme — see CLAUDE.md §4.1. */
+:root {
+  --bg:            #1a1b26;  /* desktop / window bg */
+  --bg-dark:       #16161e;  /* status bar, taskbar */
+  --bg-highlight:  #292e42;  /* hover, selection, focused title bar */
+  --border:        #3b4261;
+  --fg:            #c0caf5;  /* main text */
+  --fg-dim:        #a9b1d6;
+  --comment:       #565f89;  /* muted text, inactive */
+
+  --accent:        #9ece6a;  /* PRIMARY: prompt, links, active items, cursor */
+  --accent-2:      #73daca;  /* secondary green-teal: headings, keys in neofetch */
+  --accent-3:      #41a6b5;  /* deep teal, borders of focused window */
+
+  --cyan:    #7dcfff;
+  --blue:    #7aa2f7;
+  --magenta: #bb9af7;
+  --yellow:  #e0af68;
+  --orange:  #ff9e64;
+  --red:     #f7768e;
+
+  /* typography */
+  --font-mono: "Hack", ui-monospace, "DejaVu Sans Mono", Menlo, Consolas, monospace;
+  --font-size: 15px;
+  --line-height: 1.5;
+
+  /* motion */
+  --duration-fast: 120ms;
+}

@@ -1,0 +1,35 @@
+---
+import Base from "../layouts/Base.astro";
+
+// Placeholder until the data layer (Phase 2) provides real profile info.
+const title = "guest@se7enbit: ~";
+const description = "Terminal-styled portfolio — TODO description from profile.";
+---
+
+<Base title={title} description={description}>
+  <main id="main" class="scaffold">
+    <p>
+      <span class="prompt">guest@se7enbit:~$</span> startx<span class="cursor" aria-hidden="true"></span>
+    </p>
+    <p class="hint"># scaffold ready — desktop coming in later phases</p>
+  </main>
+</Base>
+
+<style>
+  .scaffold {
+    display: grid;
+    place-content: center;
+    gap: 0.5rem;
+    min-height: 100dvh;
+    padding: 1rem;
+  }
+
+  .prompt {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .hint {
+    color: var(--fg-dim);
+  }
+</style>
