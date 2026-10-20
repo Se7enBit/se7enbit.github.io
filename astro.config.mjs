@@ -7,5 +7,9 @@ import sitemap from "@astrojs/sitemap";
 export default defineConfig({
   site: "https://se7enbit.github.io",
   output: "static",
-  integrations: [svelte(), sitemap()],
+  integrations: [
+    svelte(),
+    // The 404 page is not a real page; keep it out of the sitemap.
+    sitemap({ filter: (page) => !/\/404\/?$/.test(new URL(page).pathname) }),
+  ],
 });

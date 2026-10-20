@@ -112,7 +112,7 @@
   <header class="titlebar" class:draggable={!fixed} onpointerdown={startDrag}>
     <h2 id="window-{id}-title" class="title">{title}</h2>
     {#if onclose}
-      <button type="button" class="close" onclick={onclose} aria-label="Close {title}" title="Close (Esc)">[x]</button>
+      <button type="button" class="close" onclick={onclose} aria-label="Close {title}" title="Close (Esc)">[×]</button>
     {/if}
   </header>
   <div class="body" class:scroll>

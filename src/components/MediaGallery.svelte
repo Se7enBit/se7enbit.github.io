@@ -86,7 +86,7 @@
         <button type="button" onclick={() => step(-1)} aria-label="Previous image">[ ← ]</button>
         <button type="button" onclick={() => step(1)} aria-label="Next image">[ → ]</button>
       {/if}
-      <button type="button" onclick={() => dialog.close()} aria-label="Close image viewer">[ esc ]</button>
+      <button type="button" onclick={() => dialog.close()} aria-label="Close image viewer (esc)">[ esc ]</button>
     </div>
   {/if}
 </dialog>

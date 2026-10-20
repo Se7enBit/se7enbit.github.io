@@ -1,0 +1,81 @@
+---
+import Base from "../layouts/Base.astro";
+import { profile } from "../data/profile";
+
+const ps1 = `guest@${profile.handle}:~$`;
+---
+
+<Base title="404 — bash: page not found" description="This page doesn't exist." noindex>
+  <main id="main" class="page">
+    <section class="term" aria-labelledby="nf-title">
+      <header class="bar">guest@{profile.handle}: ~</header>
+      <div class="body">
+        <p><span class="ps1">{ps1}</span> cd <span data-path>this-page</span></p>
+        <h1 id="nf-title" class="err">bash: cd: <span data-path>this-page</span>: No such file or directory</h1>
+        <p class="dim">404 — page not found</p>
+        <p><span class="ps1">{ps1}</span> <a href="/">cd ~</a><span class="cursor" aria-hidden="true"></span></p>
+      </div>
+    </section>
+  </main>
+</Base>
+
+<script>
+  // Show the path the visitor actually asked for (as text, never HTML).
+  let path = location.pathname;
+  try {
+    path = decodeURIComponent(path);
+  } catch {
+    // keep the raw path
+  }
+  if (path.length > 60) path = `${path.slice(0, 57)}...`;
+  for (const el of document.querySelectorAll("[data-path]")) el.textContent = path;
+</script>
+
+<style>
+  .page {
+    display: grid;
+    place-items: center;
+    min-height: 100dvh;
+    padding: 1rem;
+    background-image: radial-gradient(rgb(59 66 97 / 0.4) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  .term {
+    width: min(720px, 100%);
+    background: var(--bg-dark);
+    border: 1px solid var(--accent-3);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .bar {
+    padding: 0.375rem;
+    background: var(--bg-highlight);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .body {
+    display: grid;
+    gap: 0.375rem;
+    padding: 1rem 1.25rem 1.25rem;
+    overflow-wrap: anywhere;
+  }
+
+  .ps1 {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .err {
+    color: var(--red);
+    font-weight: 400;
+  }
+
+  .dim {
+    color: var(--comment);
+  }
+</style>

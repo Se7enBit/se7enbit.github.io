@@ -10,6 +10,22 @@ const projects = await getProjects();
 
 const title = `${profile.name} — ${profile.title}`;
 const description = profile.bio;
+
+// Structured data for search engines (schema.org Person), all from profile.ts.
+const person = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: profile.name,
+  jobTitle: profile.title,
+  description: profile.bio,
+  url: Astro.site?.href,
+  email: `mailto:${profile.email}`,
+  sameAs: [profile.linkedin, ...profile.github],
+  alumniOf: { "@type": "CollegeOrUniversity", name: profile.university },
+  homeLocation: { "@type": "Place", name: profile.location },
+};
+// Escape "<" so profile text can never close the <script> tag.
+const personJson = JSON.stringify(person).replace(/</g, "\\u003c");
 ---
 
 <Base title={title} description={description}>
@@ -25,6 +41,7 @@ const description = profile.bio;
         if (sessionStorage.getItem(key) === "1") document.documentElement.dataset.launched = "";
       } catch {}
     </script>
+    <script type="application/ld+json" is:inline set:html={personJson} />
   </Fragment>
 
   <!-- Desktop session: only hydrated (and only shown) on ≥768px with JS. -->

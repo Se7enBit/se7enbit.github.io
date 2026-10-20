@@ -12,6 +12,7 @@
     "build": "astro check && astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "og": "node scripts/og-image.mjs",
     "astro": "astro"
   },
   "dependencies": {
