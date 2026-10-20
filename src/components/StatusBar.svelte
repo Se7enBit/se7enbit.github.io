@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { profile } from "../data/profile";
-  import { desktop, WINDOWS } from "../lib/desktop.svelte";
+  import { desktop, focusWindow, WINDOWS } from "../lib/desktop.svelte";
 
   const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -43,7 +43,10 @@
         class:occupied={desktop.isOpen(w.id)}
         aria-current={desktop.focused === w.id ? "true" : undefined}
         aria-label="Workspace {w.workspace}: {w.label}"
-        onclick={() => desktop.open(w.id)}>{w.workspace}</button
+        onclick={() => {
+          desktop.open(w.id);
+          focusWindow(w.id);
+        }}>{w.workspace}</button
       >
     {/each}
   </nav>

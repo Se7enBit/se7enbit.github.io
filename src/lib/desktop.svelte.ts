@@ -1,4 +1,5 @@
 // Shared desktop state: launch screen + window stack. Used by every part of the island.
+import { tick } from "svelte";
 import { profile } from "../data/profile";
 
 export type WindowId = "terminal" | "projects" | "about" | "contact";
@@ -35,6 +36,9 @@ class DesktopState {
 
   focused = $derived(this.stack.at(-1) ?? "terminal");
 
+  /** Project shown in the Projects window's detail view (null = card grid). */
+  selectedProject = $state<string | null>(null);
+
   isOpen(id: WindowId): boolean {
     return this.stack.includes(id);
   }
@@ -52,6 +56,13 @@ class DesktopState {
   close(id: WindowId): void {
     if (id === "terminal") return;
     this.stack = this.stack.filter((w) => w !== id);
+    if (id === "projects") this.selectedProject = null;
+  }
+
+  /** Open the Projects window on a project's detail view, or on the grid with null. */
+  showProject(id: string | null): void {
+    this.selectedProject = id;
+    this.open("projects");
   }
 
   /** Skip the launch screen if the visitor already launched in this browser session. */
@@ -78,6 +89,7 @@ class DesktopState {
   exit(): void {
     this.launched = false;
     this.stack = ["terminal"];
+    this.selectedProject = null;
     delete document.documentElement.dataset.launched;
     try {
       sessionStorage.removeItem(LAUNCHED_KEY);
@@ -88,3 +100,16 @@ class DesktopState {
 }
 
 export const desktop = new DesktopState();
+
+/** Move keyboard focus into a window (the prompt, for the terminal). Used after taskbar/workspace clicks and closes. */
+export async function focusWindow(id: WindowId): Promise<void> {
+  await tick();
+  const el = document.getElementById(id === "terminal" ? "term-input" : `window-${id}`);
+  el?.focus({ preventScroll: true });
+}
+
+/** True when keyboard focus is on nothing in particular or inside the given element — safe to move it there. */
+export function focusIsIdleOrWithin(el: Element | null | undefined): boolean {
+  const active = document.activeElement;
+  return !active || active === document.body || (!!el && el.contains(active));
+}

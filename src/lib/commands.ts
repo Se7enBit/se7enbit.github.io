@@ -15,6 +15,8 @@ export type Ctx = {
   projects: readonly Project[];
   history: readonly string[];
   openWindow: (id: WindowId) => void;
+  /** Open the Projects window on a project's detail view (or the grid with null). */
+  showProject: (id: string | null) => void;
   openUrl: (url: string) => void;
   clear: () => void;
   exit: () => void;
@@ -73,7 +75,7 @@ function about(ctx: Ctx): Block[] {
 }
 
 function listProjects(ctx: Ctx): Block[] {
-  ctx.openWindow("projects");
+  ctx.showProject(null);
   const ps = ctx.projects;
   if (ps.length === 0) return lines([dim("no projects yet")]);
   const w = Math.max(...ps.map((p) => p.id.length));
@@ -216,6 +218,7 @@ export const COMMANDS: Command[] = [
       if (arg === "cv.pdf") return lines([err("cat: cv.pdf: binary file"), dim(" — try "), cmd("cv")]);
       const p = findProject(arg, ctx);
       if (!p) return lines([err(`cat: ${arg}: No such file or directory`), dim(" — try "), cmd("ls projects")]);
+      ctx.showProject(p.id);
       return projectDetails(p);
     },
   },

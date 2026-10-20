@@ -63,6 +63,7 @@
     },
     history,
     openWindow: (id) => desktop.open(id),
+    showProject: (id) => desktop.showProject(id),
     openUrl: (url) => window.open(url, "_blank", "noopener,noreferrer"),
     clear: () => (pending = "clear"),
     exit: () => (pending = "exit"),
@@ -128,6 +129,9 @@
 
   function onkeydown(e: KeyboardEvent) {
     const plain = !e.ctrlKey && !e.metaKey && !e.altKey;
+
+    // Typing in the terminal brings it back to the front (Esc is left to close the top window).
+    if (e.key !== "Escape" && !["Shift", "Control", "Alt", "Meta"].includes(e.key)) desktop.open("terminal");
 
     if (e.key === "Enter") {
       e.preventDefault();

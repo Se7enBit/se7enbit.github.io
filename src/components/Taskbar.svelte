@@ -1,6 +1,6 @@
 <script lang="ts">
   import { profile } from "../data/profile";
-  import { desktop, WINDOWS } from "../lib/desktop.svelte";
+  import { desktop, focusWindow, WINDOWS } from "../lib/desktop.svelte";
 </script>
 
 <nav class="taskbar" aria-label="Taskbar">
@@ -12,7 +12,10 @@
           class="item"
           class:open={desktop.isOpen(w.id)}
           class:focused={desktop.focused === w.id}
-          onclick={() => desktop.open(w.id)}
+          onclick={() => {
+            desktop.open(w.id);
+            focusWindow(w.id);
+          }}
         >
           <span class="glyph" aria-hidden="true">{w.glyph}</span>
           {w.label}

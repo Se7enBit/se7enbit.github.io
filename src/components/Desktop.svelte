@@ -1,9 +1,12 @@
 <script lang="ts">
   import { onMount, tick } from "svelte";
   import { profile } from "../data/profile";
-  import { desktop, WINDOWS } from "../lib/desktop.svelte";
+  import { desktop, focusWindow, WINDOWS, type WindowId } from "../lib/desktop.svelte";
   import type { Project } from "../lib/projects";
+  import AboutView from "./AboutView.svelte";
+  import ContactView from "./ContactView.svelte";
   import LaunchScreen from "./LaunchScreen.svelte";
+  import ProjectsView from "./ProjectsView.svelte";
   import StatusBar from "./StatusBar.svelte";
   import Taskbar from "./Taskbar.svelte";
   import Terminal from "./Terminal.svelte";
@@ -11,23 +14,42 @@
 
   let { projects }: { projects: Project[] } = $props();
 
-  // Initial positions for floating windows (cascade). Dragging comes in Phase 5.
-  const POSITIONS: Record<string, { x: string; y: string }> = {
-    projects: { x: "8%", y: "6%" },
-    about: { x: "18%", y: "12%" },
-    contact: { x: "28%", y: "18%" },
+  // Initial position (cascade) and preferred size of the floating windows. Positions don't persist.
+  const LAYOUT: Record<Exclude<WindowId, "terminal">, { x: string; y: string; w: string; h: string }> = {
+    projects: { x: "5%", y: "4%", w: "880px", h: "640px" },
+    about: { x: "24%", y: "10%", w: "580px", h: "500px" },
+    contact: { x: "40%", y: "18%", w: "520px", h: "340px" },
   };
 
-  const focusPrompt = () => document.getElementById("term-input")?.focus({ preventScroll: true });
+  function close(id: WindowId) {
+    desktop.close(id);
+    focusWindow(desktop.focused);
+  }
 
   onMount(() => {
     desktop.restore();
-    // Typing while nothing in particular has focus goes to the terminal prompt.
+
     const onKey = (e: KeyboardEvent) => {
+      if (!desktop.launched) return;
+
+      // Esc: leave a project's detail view, otherwise close the top window. The lightbox handles its own Esc.
+      if (e.key === "Escape" && !document.querySelector("dialog[open]")) {
+        const top = desktop.focused;
+        if (top === "projects" && desktop.selectedProject) {
+          e.preventDefault();
+          desktop.showProject(null);
+        } else if (top !== "terminal") {
+          e.preventDefault();
+          close(top);
+        }
+        return;
+      }
+
+      // Typing while nothing in particular has focus goes to the terminal prompt.
       const idle = document.activeElement === document.body || document.activeElement?.classList.contains("window");
-      if (desktop.launched && idle && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      if (idle && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
         desktop.open("terminal");
-        focusPrompt();
+        focusWindow("terminal");
       }
     };
     window.addEventListener("keydown", onKey);
@@ -36,7 +58,7 @@
 
   // Hand keyboard focus to the terminal prompt once the desktop is up.
   $effect(() => {
-    if (desktop.launched) tick().then(focusPrompt);
+    if (desktop.launched) tick().then(() => focusWindow("terminal"));
   });
 </script>
 
@@ -63,14 +85,19 @@
           <Window
             id={w.id}
             title={w.title}
-            x={POSITIONS[w.id]?.x}
-            y={POSITIONS[w.id]?.y}
+            {...LAYOUT[w.id]}
             focused={desktop.focused === w.id}
             z={desktop.zIndex(w.id)}
             onfocus={() => desktop.open(w.id)}
-            onclose={() => desktop.close(w.id)}
+            onclose={() => close(w.id)}
           >
-            <p class="dim"># TODO: {w.label} window (Phase 5)</p>
+            {#if w.id === "projects"}
+              <ProjectsView {projects} />
+            {:else if w.id === "about"}
+              <AboutView />
+            {:else}
+              <ContactView />
+            {/if}
           </Window>
         {/if}
       {/if}
@@ -102,9 +129,5 @@
   .workspace {
     position: relative;
     overflow: hidden;
-  }
-
-  .dim {
-    color: var(--comment);
   }
 </style>
