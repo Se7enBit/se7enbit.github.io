@@ -1,6 +1,8 @@
 ---
 import Base from "../layouts/Base.astro";
+import Desktop from "../components/Desktop.svelte";
 import { profile } from "../data/profile";
+import { LAUNCHED_KEY } from "../lib/desktop.svelte";
 import { getProjects } from "../lib/projects";
 
 const projects = await getProjects();
@@ -10,47 +12,67 @@ const description = profile.bio;
 ---
 
 <Base title={title} description={description}>
-  <main id="main" class="page">
-    <h1><span class="prompt">guest@{profile.handle}:~$</span> ls projects</h1>
+  <Fragment slot="head">
+    <!-- Skip the launch screen before first paint if already launched this session. -->
+    <script is:inline define:vars={{ key: LAUNCHED_KEY }}>
+      try {
+        if (sessionStorage.getItem(key) === "1") document.documentElement.dataset.launched = "";
+      } catch {}
+    </script>
+    <noscript>
+      <style>
+        .desktop,
+        .launch {
+          display: none !important;
+        }
+      </style>
+    </noscript>
+  </Fragment>
 
-    <!-- Phase 2: plain HTML list proving the data layer. Replaced by the desktop UI later. -->
-    <ul class="projects">
-      {
-        projects.map((p) => (
-          <li id={p.id}>
-            <h2>
-              {p.title}
-              {p.featured && <span class="badge">★ featured</span>}
-              {p.private && <span class="badge">🔒 private</span>}
-            </h2>
-            <p class="meta">
-              id: {p.id} · source: {p.source}
-              {p.github && (
-                <>
-                  {" "}· <a href={p.github.url}>{p.github.repo}</a>
-                  {p.github.stars !== undefined && <> · ★ {p.github.stars}</>}
-                  {p.github.language && <> · {p.github.language}</>}
-                  {!p.github.fetched && <> · (not fetched)</>}
-                </>
-              )}
-              {p.status && <> · {p.status}</>}
-              {p.date && <> · {p.date}</>}
-            </p>
-            {p.description && <p>{p.description}</p>}
-            {p.tags.length > 0 && <p class="tags">{p.tags.map((t) => <span>[{t}]</span>)}</p>}
-            {p.links.length > 0 && (
-              <p>
-                {p.links.map((l) => (
-                  <a href={l.url}>{l.label}</a>
-                ))}
+  <Desktop client:load />
+
+  <!-- Temporary no-JS view (Phase 2 list); replaced by the full fallback in Phase 6. -->
+  <noscript>
+    <div class="page">
+      <p class="h"><span class="prompt">guest@{profile.handle}:~$</span> ls projects</p>
+      <ul class="projects">
+        {
+          projects.map((p) => (
+            <li id={p.id}>
+              <h2>
+                {p.title}
+                {p.featured && <span class="badge">★ featured</span>}
+                {p.private && <span class="badge">🔒 private</span>}
+              </h2>
+              <p class="meta">
+                id: {p.id} · source: {p.source}
+                {p.github && (
+                  <>
+                    {" "}· <a href={p.github.url}>{p.github.repo}</a>
+                    {p.github.stars !== undefined && <> · ★ {p.github.stars}</>}
+                    {p.github.language && <> · {p.github.language}</>}
+                    {!p.github.fetched && <> · (not fetched)</>}
+                  </>
+                )}
+                {p.status && <> · {p.status}</>}
+                {p.date && <> · {p.date}</>}
               </p>
-            )}
-            {p.media.length > 0 && <p class="meta">media: {p.media.map((m) => m.type).join(", ")}</p>}
-          </li>
-        ))
-      }
-    </ul>
-  </main>
+              {p.description && <p>{p.description}</p>}
+              {p.tags.length > 0 && <p class="tags">{p.tags.map((t) => <span>[{t}]</span>)}</p>}
+              {p.links.length > 0 && (
+                <p>
+                  {p.links.map((l) => (
+                    <a href={l.url}>{l.label}</a>
+                  ))}
+                </p>
+              )}
+              {p.media.length > 0 && <p class="meta">media: {p.media.map((m) => m.type).join(", ")}</p>}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </noscript>
 </Base>
 
 <style>
@@ -62,6 +84,7 @@ const description = profile.bio;
 
   .prompt {
     color: var(--accent);
+    font-weight: 700;
   }
 
   .projects {
