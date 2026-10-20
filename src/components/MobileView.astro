@@ -1,0 +1,775 @@
+---
+// Static single-column view: the layout under 768px, and the full no-JS fallback at any width.
+// Everything here is plain HTML; the only script is the clock (and closing the menu after a tap).
+import { profile } from "../data/profile";
+import { projectLinks } from "../lib/project-links";
+import type { Project } from "../lib/projects";
+import Neofetch from "./Neofetch.svelte";
+import RichText from "./RichText.svelte";
+
+interface Props {
+  projects: Project[];
+}
+
+const { projects } = Astro.props;
+
+const ps1 = `guest@${profile.handle}:~$`;
+const strip = (url: string) => url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
+const external = { target: "_blank", rel: "noopener noreferrer" };
+
+const sections = ["about", "projects", "skills", "contact"];
+const facts = [profile.university, profile.graduation, profile.location].filter(Boolean).join(" · ");
+const contacts = [
+  { key: "email", label: profile.email, href: `mailto:${profile.email}`, ext: false },
+  { key: "linkedin", label: strip(profile.linkedin), href: profile.linkedin, ext: true },
+  ...profile.github.map((url) => ({ key: "github", label: strip(url), href: url, ext: true })),
+  { key: "cv", label: "cv.pdf", href: profile.cv, ext: true },
+];
+
+const view = projects.map((p) => {
+  const cover = p.media.find((m) => m.type === "image");
+  const stats =
+    p.github && !p.private
+      ? [p.github.stars !== undefined ? `★ ${p.github.stars}` : "", p.github.language ?? ""].filter(Boolean)
+      : [];
+  return {
+    p,
+    cover,
+    meta: [...stats, p.role, p.status, p.date].filter(Boolean).join(" · "),
+    links: projectLinks(p),
+    long: p.longDescription && p.longDescription !== p.description ? p.longDescription : undefined,
+    hasMore: Boolean(
+      (p.longDescription && p.longDescription !== p.description) || p.highlights.length || p.media.length,
+    ),
+  };
+});
+---
+
+<div class="mobile-view">
+  <a class="skip-link" href="#main-mobile">Skip to content</a>
+
+  <header class="bar">
+    <span class="host"><span class="accent">guest</span>@{profile.handle}</span>
+    <span class="right">
+      <time class="clock" data-clock>--:--</time>
+      <details class="menu">
+        <summary aria-label="Menu">[≡]</summary>
+        <nav aria-label="Menu">
+          <ul>
+            {sections.map((s) => <li><a href={`#${s}`}>{s}</a></li>)}
+            <li><a href={profile.cv} {...external}>cv.pdf</a></li>
+            {profile.github.map((url) => <li><a href={url} {...external}>{strip(url)}</a></li>)}
+            <li><a href={profile.linkedin} {...external}>linkedin</a></li>
+            <li><a href={`mailto:${profile.email}`}>email</a></li>
+          </ul>
+        </nav>
+      </details>
+    </span>
+  </header>
+
+  <main id="main-mobile" class="main" tabindex="-1">
+    <h1 class="sr-only">{profile.name} — {profile.title}</h1>
+
+    <section class="term" aria-label="System info">
+      <p class="cmdline"><span class="ps1">{ps1}</span> neofetch</p>
+      <Neofetch projects={projects} />
+      <p class="cmdline"><span class="ps1">{ps1}</span> help</p>
+      <ul class="chips" aria-label="Commands">
+        <li><a href="#about">whoami</a></li>
+        <li><a href="#projects">projects</a></li>
+        <li><a href="#skills">skills</a></li>
+        <li><a href="#contact">contact</a></li>
+        <li><a href={profile.cv} {...external}>cv</a></li>
+      </ul>
+    </section>
+
+    <section id="about" aria-labelledby="about-h">
+      <h2 id="about-h" class="prompt-h">about<span class="ps">:$</span></h2>
+      <p class="name">{profile.name}</p>
+      <p class="title">{profile.title}</p>
+      <p class="dim">{facts}</p>
+      <p>{profile.bio}</p>
+    </section>
+
+    <section id="projects" aria-labelledby="projects-h">
+      <h2 id="projects-h" class="prompt-h">projects<span class="ps">:$</span></h2>
+      <p class="dim">total {projects.length}</p>
+      <ul class="projects">
+        {
+          view.map(({ p, cover, meta, links, long, hasMore }) => (
+            <li>
+              <article class:list={["project", { featured: p.featured }]} id={`project-${p.id}`}>
+                {cover ? (
+                  <img class="thumb" src={cover.src} alt={cover.alt} loading="lazy" decoding="async" />
+                ) : (
+                  <div class="thumb placeholder" aria-hidden="true">
+                    <span class="dim">$ cat {p.id}</span>
+                    <strong>{p.title}</strong>
+                  </div>
+                )}
+                <h3>
+                  {p.title}
+                  {p.featured && <span class="star"> ★</span>}
+                </h3>
+                {(p.private || meta) && (
+                  <p class="meta">
+                    {p.private && <span class="private">🔒 private</span>}
+                    {meta && <span>{meta}</span>}
+                  </p>
+                )}
+                {p.description && <p>{p.description}</p>}
+                {p.tags.length > 0 && (
+                  <ul class="tags" aria-label="Tech stack">
+                    {p.tags.map((t) => (
+                      <li>{t}</li>
+                    ))}
+                  </ul>
+                )}
+                {links.length > 0 && (
+                  <p class="links">
+                    {links.map((l) => (
+                      <a href={l.url} {...external}>
+                        {l.label}
+                      </a>
+                    ))}
+                  </p>
+                )}
+                {hasMore && (
+                  <details class="more">
+                    <summary>
+                      <span class="ps">$</span> cat {p.id}
+                    </summary>
+                    <div class="more-body">
+                      {long && <RichText text={long} />}
+                      {p.highlights.length > 0 && (
+                        <ul class="highlights">
+                          {p.highlights.map((h) => (
+                            <li>{h}</li>
+                          ))}
+                        </ul>
+                      )}
+                      {p.media.length > 0 && (
+                        <ul class="gallery" aria-label={`Media for ${p.title}`}>
+                          {p.media.map((m) => (
+                            <li>
+                              <figure>
+                                {m.type === "image" && (
+                                  <a class="frame" href={m.src} data-lightbox data-caption={m.caption} aria-label={`View larger: ${m.alt}`}>
+                                    <img src={m.src} alt={m.alt} loading="lazy" decoding="async" />
+                                  </a>
+                                )}
+                                {m.type === "video" && (
+                                  <video class="frame" src={m.src} poster={m.poster} controls preload="none" playsinline />
+                                )}
+                                {m.type === "youtube" && (
+                                  <a class="frame yt" href={`https://www.youtube.com/watch?v=${m.id}`} {...external}>
+                                    <img src={`https://i.ytimg.com/vi/${m.id}/hqdefault.jpg`} alt="" loading="lazy" decoding="async" />
+                                    <span class="play">▶ watch on YouTube</span>
+                                  </a>
+                                )}
+                                {m.caption && <figcaption>{m.caption}</figcaption>}
+                              </figure>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </details>
+                )}
+              </article>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section id="skills" aria-labelledby="skills-h">
+      <h2 id="skills-h" class="prompt-h">skills<span class="ps">:$</span></h2>
+      <dl class="kv">
+        {
+          Object.entries(profile.skills).map(([group, items]) => (
+            <div>
+              <dt>{group}</dt>
+              <dd>{items.join(", ")}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+
+    <section id="contact" aria-labelledby="contact-h">
+      <h2 id="contact-h" class="prompt-h">contact<span class="ps">:$</span></h2>
+      <dl class="kv">
+        {
+          contacts.map((c) => (
+            <div>
+              <dt>{c.key}</dt>
+              <dd>
+                <a href={c.href} {...(c.ext ? external : {})}>
+                  {c.label}
+                </a>
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+  </main>
+
+  <nav class="dock" aria-label="Sections">
+    {sections.map((s) => <a href={`#${s}`}>{s}</a>)}
+    <a href={profile.cv} {...external}>cv</a>
+  </nav>
+
+  <!-- Full-screen image viewer (with JS). Without JS, gallery links just open the image. -->
+  <dialog class="lightbox" aria-label="Image viewer">
+    <figure>
+      <img alt="" />
+      <figcaption></figcaption>
+    </figure>
+    <div class="lb-controls">
+      <button type="button" data-lb="prev" aria-label="Previous image">[ ← ]</button>
+      <span class="lb-count"></span>
+      <button type="button" data-lb="next" aria-label="Next image">[ → ]</button>
+      <button type="button" data-lb="close" aria-label="Close image viewer">[ × ]</button>
+    </div>
+  </dialog>
+</div>
+
+<script>
+  // Live clock in the visitor's local time; the static HTML only has a placeholder.
+  const clock = document.querySelector<HTMLTimeElement>("[data-clock]");
+  if (clock) {
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const tick = () => {
+      const d = new Date();
+      clock.textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      clock.dateTime = d.toISOString();
+    };
+    tick();
+    setInterval(tick, 10_000);
+  }
+
+  // Close the menu after picking a link.
+  for (const a of document.querySelectorAll(".mobile-view .menu a")) {
+    a.addEventListener("click", () => a.closest("details")?.removeAttribute("open"));
+  }
+
+  // Image viewer: tap a gallery image → full-screen dialog with prev/next, swipe, arrow keys, Esc.
+  const dialog = document.querySelector<HTMLDialogElement>(".mobile-view .lightbox");
+  if (dialog && typeof dialog.showModal === "function") {
+    const img = dialog.querySelector("img")!;
+    const caption = dialog.querySelector("figcaption")!;
+    const count = dialog.querySelector(".lb-count")!;
+    let items: HTMLAnchorElement[] = [];
+    let index = 0;
+    let swipeX: number | null = null;
+    let swiped = false;
+
+    const show = () => {
+      const link = items[index]!;
+      img.src = link.href;
+      img.alt = link.querySelector("img")?.alt ?? "";
+      caption.textContent = link.dataset.caption || img.alt;
+      count.textContent = items.length > 1 ? `${index + 1}/${items.length}` : "";
+      dialog.classList.toggle("single", items.length < 2);
+    };
+    const step = (delta: number) => {
+      if (items.length < 2) return;
+      index = (index + delta + items.length) % items.length;
+      show();
+    };
+
+    document.addEventListener("click", (e) => {
+      const link = (e.target as Element).closest<HTMLAnchorElement>(".mobile-view a[data-lightbox]");
+      if (!link) return;
+      e.preventDefault();
+      items = [...(link.closest(".gallery")?.querySelectorAll<HTMLAnchorElement>("a[data-lightbox]") ?? [link])];
+      index = Math.max(0, items.indexOf(link));
+      show();
+      dialog.showModal();
+    });
+
+    dialog.addEventListener("click", (e) => {
+      if (swiped) {
+        swiped = false;
+        return;
+      }
+      const action = (e.target as Element).closest<HTMLElement>("[data-lb]")?.dataset.lb;
+      if (action === "prev") step(-1);
+      else if (action === "next") step(1);
+      else if (action === "close" || e.target === dialog) dialog.close();
+    });
+    dialog.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft") step(-1);
+      else if (e.key === "ArrowRight") step(1);
+    });
+    dialog.addEventListener("pointerdown", (e) => (swipeX = e.clientX));
+    dialog.addEventListener("pointerup", (e) => {
+      if (swipeX !== null && Math.abs(e.clientX - swipeX) > 50) {
+        swiped = true;
+        step(e.clientX < swipeX ? 1 : -1);
+      }
+      swipeX = null;
+    });
+  }
+</script>
+
+<style>
+  .mobile-view {
+    --bar-h: 40px;
+    --dock-h: 48px;
+    min-height: 100dvh;
+    padding-bottom: calc(var(--dock-h) + env(safe-area-inset-bottom));
+  }
+
+  /* ---------- top bar ---------- */
+  .bar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: var(--bar-h);
+    padding: 0 1rem;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.875rem;
+  }
+
+  .host {
+    color: var(--fg-dim);
+  }
+
+  .accent {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .clock {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  :global(html:not(.js)) .clock {
+    display: none;
+  }
+
+  .menu {
+    position: relative;
+  }
+
+  .menu summary {
+    padding: 0.5rem 0;
+    color: var(--accent);
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .menu summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .menu nav {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    min-width: 14rem;
+    padding: 0.5rem 0;
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    box-shadow: 0 12px 32px rgb(0 0 0 / 0.45);
+  }
+
+  .menu ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .menu a {
+    display: block;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+  }
+
+  .menu a:hover {
+    background: var(--bg-highlight);
+  }
+
+  /* ---------- content ---------- */
+  /* minmax(0, 1fr) everywhere: stops large images from widening the column past the screen. */
+  .main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.5rem;
+    max-width: 76ch;
+    margin: 0 auto;
+    padding: 1rem 1rem 2rem;
+  }
+
+  .main:focus {
+    outline: none;
+  }
+
+  section {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+    min-width: 0;
+    scroll-margin-top: calc(var(--bar-h) + 0.5rem);
+  }
+
+  .term {
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: var(--bg);
+    border: 1px solid var(--accent-3);
+    border-radius: 6px;
+    overflow-x: auto;
+  }
+
+  .ps1 {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .chips a {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    text-decoration: none;
+  }
+
+  .chips a:hover {
+    border-color: var(--accent);
+  }
+
+  .prompt-h {
+    color: var(--accent-2);
+    font-size: 1.125rem;
+  }
+
+  .ps {
+    color: var(--accent);
+  }
+
+  .name {
+    color: var(--fg);
+    font-weight: 700;
+    font-size: 1.125rem;
+  }
+
+  .title {
+    color: var(--accent-2);
+  }
+
+  .dim {
+    color: var(--comment);
+  }
+
+  /* ---------- projects ---------- */
+  .projects {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .project {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+    padding: 0 0 0.75rem;
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    scroll-margin-top: calc(var(--bar-h) + 0.5rem);
+  }
+
+  .project > :not(.thumb) {
+    margin-inline: 0.875rem;
+  }
+
+  .project.featured {
+    border-color: var(--accent);
+  }
+
+  .thumb {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .placeholder {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 1rem;
+    background-image: radial-gradient(rgb(59 66 97 / 0.4) 1px, transparent 1px);
+    background-size: 12px 12px;
+  }
+
+  .placeholder strong {
+    color: var(--accent);
+    font-size: 1.125rem;
+  }
+
+  h3 {
+    color: var(--accent-2);
+  }
+
+  .star,
+  .private {
+    color: var(--yellow);
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1rem;
+    color: var(--comment);
+    font-size: 0.875rem;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tags li {
+    padding: 0 0.375rem;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--accent);
+    font-size: 0.8125rem;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+  }
+
+  .more summary {
+    color: var(--accent);
+    cursor: pointer;
+  }
+
+  .more-body {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+
+  .highlights {
+    margin: 0;
+    padding-left: 2ch;
+  }
+
+  .highlights li::marker {
+    content: "• ";
+    color: var(--accent);
+  }
+
+  /* Horizontal swipe row. */
+  .gallery {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 85%;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0 0 0.25rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    list-style: none;
+  }
+
+  .gallery li {
+    scroll-snap-align: start;
+  }
+
+  .gallery figure {
+    margin: 0;
+  }
+
+  .frame {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .play {
+    position: absolute;
+    left: 0.5rem;
+    bottom: 0.5rem;
+    padding: 0.125rem 0.5rem;
+    background: rgb(22 22 30 / 0.85);
+    border: 1px solid var(--accent);
+    border-radius: 3px;
+    color: var(--accent);
+    font-size: 0.8125rem;
+  }
+
+  figcaption {
+    margin-top: 0.25rem;
+    color: var(--fg-dim);
+    font-size: 0.8125rem;
+  }
+
+  /* ---------- image viewer ---------- */
+  .lightbox {
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom));
+    background: rgb(22 22 30 / 0.97);
+    border: 0;
+    color: var(--fg);
+    touch-action: pan-y;
+  }
+
+  .lightbox[open] {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 0.75rem;
+  }
+
+  .lightbox::backdrop {
+    background: transparent;
+  }
+
+  .lightbox figure {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 0.5rem;
+    place-items: center;
+    min-height: 0;
+    margin: 0;
+  }
+
+  .lightbox img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  .lb-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .lb-controls button {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 0.5rem;
+    background: none;
+    border: 0;
+    color: var(--accent);
+    cursor: pointer;
+  }
+
+  .lb-count {
+    color: var(--comment);
+    font-size: 0.875rem;
+  }
+
+  .lightbox.single [data-lb="prev"],
+  .lightbox.single [data-lb="next"] {
+    display: none;
+  }
+
+  /* ---------- key/value lists ---------- */
+  .kv {
+    display: grid;
+    gap: 0.375rem;
+    margin: 0;
+  }
+
+  .kv div {
+    display: grid;
+    grid-template-columns: 10ch 1fr;
+    gap: 1ch;
+  }
+
+  .kv dt {
+    color: var(--accent-2);
+  }
+
+  .kv dd {
+    margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  /* ---------- bottom dock ---------- */
+  .dock {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    height: calc(var(--dock-h) + env(safe-area-inset-bottom));
+    /* On wide no-JS screens keep the links within the content column. */
+    padding: 0 max(0px, (100% - 76ch) / 2) env(safe-area-inset-bottom);
+    background: var(--bg-dark);
+    border-top: 1px solid var(--border);
+  }
+
+  .dock a {
+    display: grid;
+    place-items: center;
+    color: var(--fg-dim);
+    font-size: 0.8125rem;
+    text-decoration: none;
+  }
+
+  .dock a:hover,
+  .dock a:focus-visible {
+    color: var(--accent);
+  }
+</style>

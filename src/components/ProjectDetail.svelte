@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { focusIsIdleOrWithin } from "../lib/desktop.svelte";
+  import { projectLinks } from "../lib/project-links";
   import type { Project } from "../lib/projects";
   import MediaGallery from "./MediaGallery.svelte";
   import RichText from "./RichText.svelte";
@@ -10,11 +11,7 @@
   let heading: HTMLHeadingElement;
 
   const meta = $derived([p.role, p.status, p.date].filter(Boolean).join(" · "));
-  const links = $derived([
-    ...(p.github && !p.private ? [{ label: "repo", url: p.github.url }] : []),
-    ...(p.github?.homepage ? [{ label: "demo", url: p.github.homepage }] : []),
-    ...p.links,
-  ]);
+  const links = $derived(projectLinks(p));
 
   // Follow the visitor into the detail view, unless they're typing in the terminal (`cat <project>`).
   onMount(() => {

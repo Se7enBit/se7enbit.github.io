@@ -1,6 +1,7 @@
 ---
 import Base from "../layouts/Base.astro";
 import Desktop from "../components/Desktop.svelte";
+import MobileView from "../components/MobileView.astro";
 import { profile } from "../data/profile";
 import { LAUNCHED_KEY } from "../lib/desktop.svelte";
 import { getProjects } from "../lib/projects";
@@ -13,109 +14,24 @@ const description = profile.bio;
 
 <Base title={title} description={description}>
   <Fragment slot="head">
-    <!-- Skip the launch screen before first paint if already launched this session. -->
+    <!--
+      Runs before first paint:
+      - `js` class: with JS on ≥768px the desktop replaces the static view (see global.css);
+      - skip the launch screen if already launched this session.
+    -->
     <script is:inline define:vars={{ key: LAUNCHED_KEY }}>
+      document.documentElement.classList.add("js");
       try {
         if (sessionStorage.getItem(key) === "1") document.documentElement.dataset.launched = "";
       } catch {}
     </script>
-    <noscript>
-      <style>
-        .desktop,
-        .launch {
-          display: none !important;
-        }
-      </style>
-    </noscript>
   </Fragment>
 
-  <Desktop client:load projects={projects} />
+  <!-- Desktop session: only hydrated (and only shown) on ≥768px with JS. -->
+  <div class="desktop-root">
+    <Desktop client:media="(min-width: 768px)" projects={projects} />
+  </div>
 
-  <!-- Temporary no-JS view (Phase 2 list); replaced by the full fallback in Phase 6. -->
-  <noscript>
-    <div class="page">
-      <p class="h"><span class="prompt">guest@{profile.handle}:~$</span> ls projects</p>
-      <ul class="projects">
-        {
-          projects.map((p) => (
-            <li id={p.id}>
-              <h2>
-                {p.title}
-                {p.featured && <span class="badge">★ featured</span>}
-                {p.private && <span class="badge">🔒 private</span>}
-              </h2>
-              <p class="meta">
-                id: {p.id} · source: {p.source}
-                {p.github && (
-                  <>
-                    {" "}· <a href={p.github.url}>{p.github.repo}</a>
-                    {p.github.stars !== undefined && <> · ★ {p.github.stars}</>}
-                    {p.github.language && <> · {p.github.language}</>}
-                    {!p.github.fetched && <> · (not fetched)</>}
-                  </>
-                )}
-                {p.status && <> · {p.status}</>}
-                {p.date && <> · {p.date}</>}
-              </p>
-              {p.description && <p>{p.description}</p>}
-              {p.tags.length > 0 && <p class="tags">{p.tags.map((t) => <span>[{t}]</span>)}</p>}
-              {p.links.length > 0 && (
-                <p>
-                  {p.links.map((l) => (
-                    <a href={l.url}>{l.label}</a>
-                  ))}
-                </p>
-              )}
-              {p.media.length > 0 && <p class="meta">media: {p.media.map((m) => m.type).join(", ")}</p>}
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  </noscript>
+  <!-- Static single-column view: mobile layout and no-JS fallback. -->
+  <MobileView projects={projects} />
 </Base>
-
-<style>
-  .page {
-    max-width: 72ch;
-    margin: 0 auto;
-    padding: 2rem 1rem;
-  }
-
-  .prompt {
-    color: var(--accent);
-    font-weight: 700;
-  }
-
-  .projects {
-    display: grid;
-    gap: 1.25rem;
-    margin: 1.5rem 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .projects li {
-    display: grid;
-    gap: 0.25rem;
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--border);
-  }
-
-  .badge {
-    margin-left: 0.75rem;
-    color: var(--yellow);
-    font-weight: 400;
-  }
-
-  .meta {
-    color: var(--fg-dim);
-  }
-
-  .tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    color: var(--accent);
-  }
-</style>

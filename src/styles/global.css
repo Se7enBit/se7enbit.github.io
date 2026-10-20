@@ -128,6 +128,24 @@ svg {
   transform: none;
 }
 
+/*
+ * View switching. The static single-column view (MobileView.astro) is the default and the no-JS fallback.
+ * With JS on ≥768px, the desktop island takes over (it's only hydrated there: client:media).
+ */
+.desktop-root {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  html.js .desktop-root {
+    display: block;
+  }
+
+  html.js .mobile-view {
+    display: none;
+  }
+}
+
 /* Blinking block cursor */
 .cursor {
   display: inline-block;

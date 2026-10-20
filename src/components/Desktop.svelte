@@ -63,6 +63,7 @@
 </script>
 
 <div class="desktop" inert={!desktop.launched}>
+  <a class="skip-link" href="#main">Skip to content</a>
   <h1 class="sr-only">{profile.name} — {profile.title}</h1>
   <StatusBar />
 
