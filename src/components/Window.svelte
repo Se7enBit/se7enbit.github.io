@@ -12,12 +12,15 @@
     /** Initial position (CSS lengths) for floating windows. */
     x?: string;
     y?: string;
+    /** false → the body doesn't scroll or pad; the content manages its own scrolling. */
+    scroll?: boolean;
     onfocus: () => void;
     onclose?: () => void;
     children: Snippet;
   };
 
-  let { id, title, focused, z, fixed = false, x = "10%", y = "8%", onfocus, onclose, children }: Props = $props();
+  let { id, title, focused, z, fixed = false, x = "10%", y = "8%", scroll = true, onfocus, onclose, children }: Props =
+    $props();
 
   function pop(_node: Element) {
     return {
@@ -49,7 +52,7 @@
       <button type="button" class="close" onclick={onclose} aria-label="Close {title}">[x]</button>
     {/if}
   </header>
-  <div class="body">
+  <div class="body" class:scroll>
     {@render children()}
   </div>
 </section>
@@ -135,6 +138,10 @@
   .body {
     flex: 1;
     min-height: 0;
+    overflow: hidden;
+  }
+
+  .body.scroll {
     overflow: auto;
     padding: 0.75rem 1rem;
   }

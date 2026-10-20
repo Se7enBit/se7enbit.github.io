@@ -2,10 +2,14 @@
   import { onMount, tick } from "svelte";
   import { profile } from "../data/profile";
   import { desktop, WINDOWS } from "../lib/desktop.svelte";
+  import type { Project } from "../lib/projects";
   import LaunchScreen from "./LaunchScreen.svelte";
   import StatusBar from "./StatusBar.svelte";
   import Taskbar from "./Taskbar.svelte";
+  import Terminal from "./Terminal.svelte";
   import Window from "./Window.svelte";
+
+  let { projects }: { projects: Project[] } = $props();
 
   // Initial positions for floating windows (cascade). Dragging comes in Phase 5.
   const POSITIONS: Record<string, { x: string; y: string }> = {
@@ -14,13 +18,25 @@
     contact: { x: "28%", y: "18%" },
   };
 
-  onMount(() => desktop.restore());
+  const focusPrompt = () => document.getElementById("term-input")?.focus({ preventScroll: true });
 
-  // Hand keyboard focus to the terminal once the desktop is up.
+  onMount(() => {
+    desktop.restore();
+    // Typing while nothing in particular has focus goes to the terminal prompt.
+    const onKey = (e: KeyboardEvent) => {
+      const idle = document.activeElement === document.body || document.activeElement?.classList.contains("window");
+      if (desktop.launched && idle && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        desktop.open("terminal");
+        focusPrompt();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
+  // Hand keyboard focus to the terminal prompt once the desktop is up.
   $effect(() => {
-    if (desktop.launched) {
-      tick().then(() => document.getElementById("window-terminal")?.focus({ preventScroll: true }));
-    }
+    if (desktop.launched) tick().then(focusPrompt);
   });
 </script>
 
@@ -36,16 +52,12 @@
             id={w.id}
             title={w.title}
             fixed
+            scroll={false}
             focused={desktop.focused === w.id}
             z={desktop.zIndex(w.id)}
             onfocus={() => desktop.open(w.id)}
           >
-            <!-- Phase 4 replaces this with the interactive terminal + neofetch. -->
-            <div class="term-placeholder">
-              <p><span class="ps1">guest@{profile.handle}:~$</span> neofetch</p>
-              <p class="dim"># neofetch + interactive shell arrive in Phase 4</p>
-              <p><span class="ps1">guest@{profile.handle}:~$</span> <span class="cursor" aria-hidden="true"></span></p>
-            </div>
+            <Terminal {projects} />
           </Window>
         {:else}
           <Window
@@ -90,16 +102,6 @@
   .workspace {
     position: relative;
     overflow: hidden;
-  }
-
-  .term-placeholder {
-    display: grid;
-    gap: 0.25rem;
-  }
-
-  .ps1 {
-    color: var(--accent);
-    font-weight: 700;
   }
 
   .dim {

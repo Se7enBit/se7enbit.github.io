@@ -44,6 +44,21 @@ const FONT: Record<string, string[]> = {
   " ": ["..", "..", "..", "..", ".."],
 };
 
+/** Neofetch logo: a chip with a big "7". '█' is the glyph, everything else is the package. */
+export function chipLogo(): string[] {
+  const W = 18;
+  const pins = new Set([1, 4, 7, 10, 13, 16]);
+  const cells = (pin: string, rest: string) => Array.from({ length: W }, (_, i) => (pins.has(i) ? pin : rest)).join("");
+  const body = ["", "   ██████████", "          ███", "         ███", "        ███", "       ███", ""];
+  return [
+    `     ${cells("╷", " ")}`.trimEnd(),
+    `    ┌${cells("┴", "─")}┐`,
+    ...body.map((row) => `  ──┤${row.padEnd(W)}├──`),
+    `    └${cells("┬", "─")}┘`,
+    `     ${cells("╵", " ")}`.trimEnd(),
+  ];
+}
+
 /** Render text as a 3-line block-letter banner. Unknown characters become spaces. */
 export function banner(text: string): string {
   const glyphs = text
