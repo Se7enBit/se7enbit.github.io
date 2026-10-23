@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.noikonomist.flamingo",
+      "sha256_cert_fingerprints": [
+        "63:E7:21:A7:9A:A3:8F:64:B3:FB:32:47:C5:32:37:4B:45:33:DF:DC:9E:63:CF:DB:82:80:24:2F:0B:6D:E0:9D"
+      ]
+    }
+  }
+]

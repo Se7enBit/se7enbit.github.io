@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex">
+  <!-- Only our own script (plus pako from jsDelivr for old browsers); no inline scripts, no tracking. -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'self' https://cdn.jsdelivr.net; style-src 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+  <title>Shared list · Flamingo</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #fffbff; --fg: #201a1b; --muted: #5f5658; --line: #d6c2c5;
+      --accent: #c2185b; --on-accent: #fff;
+      --coral: #faafa8; --peach: #f39f76; --sand: #fff8b8; --mint: #e2f6d3; --sage: #b4ddd3; --fog: #d4e4ed;
+      --storm: #aeccdc; --dusk: #d3bfdb; --blossom: #f6e2dd; --clay: #e9e3d4; --chalk: #efeff1;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #191113; --fg: #f0dee0; --muted: #d6c2c5; --line: #524346;
+        --accent: #ffb1c8; --on-accent: #5e1133;
+        --coral: #77172e; --peach: #692b17; --sand: #764603; --mint: #264d3b; --sage: #0b5b56; --fog: #21586a;
+        --storm: #284255; --dusk: #472e5b; --blossom: #6c394f; --clay: #4b443a; --chalk: #232427;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--fg);
+      font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    main { max-width: 34rem; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+    .brand { font-weight: 700; color: var(--accent); letter-spacing: .02em; margin-bottom: 1.25rem; }
+    .card { border: 1px solid var(--line); border-radius: 12px; padding: 1rem 1.25rem; }
+    .card[class*=" c-"] { border-color: transparent; }
+    .c-coral { background: var(--coral); } .c-peach { background: var(--peach); } .c-sand { background: var(--sand); }
+    .c-mint { background: var(--mint); } .c-sage { background: var(--sage); } .c-fog { background: var(--fog); }
+    .c-storm { background: var(--storm); } .c-dusk { background: var(--dusk); } .c-blossom { background: var(--blossom); }
+    .c-clay { background: var(--clay); } .c-chalk { background: var(--chalk); }
+    h1 { font-size: 1.4rem; line-height: 1.3; margin: 0 0 .5rem; overflow-wrap: anywhere; }
+    ul { list-style: none; margin: 0; padding: 0; }
+    li { display: flex; gap: .75rem; align-items: flex-start; padding: .3rem 0; overflow-wrap: anywhere; }
+    li::before {
+      content: ""; flex: none; width: 1rem; height: 1rem; margin-top: .25rem;
+      border: 2px solid currentColor; border-radius: 3px; opacity: .6;
+    }
+    .count, .hint, .privacy { color: var(--muted); font-size: .9rem; }
+    .count { margin: 0 0 .75rem; }
+    .hint { margin: 1.25rem 0 0; }
+    .store {
+      display: block; text-align: center; margin: 1.5rem 0 1rem; padding: .85rem 1rem; min-height: 48px;
+      background: var(--accent); color: var(--on-accent); border-radius: 999px; font-weight: 600; text-decoration: none;
+    }
+    .privacy { text-align: center; }
+  </style>
+</head>
+<body>
+<main>
+  <div class="brand">Flamingo</div>
+
+  <section id="loading"><p class="count">Opening list…</p></section>
+
+  <section id="list" hidden>
+    <p class="count" id="count"></p>
+    <article class="card" id="card">
+      <h1 id="title"></h1>
+      <ul id="items"></ul>
+    </article>
+    <p class="hint">Get Flamingo to save your own copy, check items off, and go through the list hands-free with earbud buttons or your voice.</p>
+  </section>
+
+  <section id="error" hidden>
+    <h1>Can’t show this list</h1>
+    <p id="error-text"></p>
+  </section>
+
+  <noscript><p>Turn on JavaScript to see this list.</p></noscript>
+
+  <a class="store" href="https://play.google.com/store/apps/details?id=com.noikonomist.flamingo">Get Flamingo on Google Play</a>
+  <p class="privacy">This list lives only inside the link. It isn’t stored on any server.</p>
+</main>
+<script src="link.js"></script>
+</body>
+</html>
