@@ -52,6 +52,14 @@ export const projects: ProjectEntry[] = [
   },
   {
     source: "github",
+    id: "alarmin",
+    repo: "ntua-el20014/alarmin",
+    title: "Alarmin",
+    description: "Android app that bundles alarms, a calendar, a timer, and a stopwatch.",
+    tags: ["Dart", "Flutter", "Android", "Drift"],
+  },
+  {
+    source: "github",
     id: "dev-time-tracker",
     repo: "ntua-el20014/dev-time-tracker",
     title: "Dev Time Tracker",
