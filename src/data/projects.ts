@@ -42,32 +42,92 @@ export type ManualProject = Common & {
 export type ProjectEntry = GitHubProject | ManualProject;
 
 export const projects: ProjectEntry[] = [
-  // TODO: owner fills these in. Placeholders:
   {
     source: "github",
-    id: "todo-public-1",
-    repo: "Se7enBit/TODO-repo-1",
-    featured: true,
-    media: [{ type: "image", src: "/projects/todo-public-1/cover.svg", alt: "TODO" }],
+    id: "flamingo",
+    repo: "Se7enBit/flamingo",
+    title: "Flamingo",
+    description: "Android list app you can walk through hands-free: items are read aloud and checked off with earbud buttons or offline voice commands.",
+    tags: ["Kotlin", "Jetpack Compose", "Android", "Room", "Vosk"],
   },
-  { source: "github", id: "todo-public-2", repo: "ntua-el20014/TODO-repo-2" },
   {
-    source: "manual",
-    id: "todo-private-1",
-    title: "TODO Private Project",
-    description: "TODO one-line description.",
-    longDescription: "TODO longer description for the detail view.",
-    role: "TODO",
-    tags: ["TODO"],
-    highlights: ["TODO"],
-    links: [{ label: "Demo video", url: "https://youtu.be/TODO" }],
-    media: [
-      { type: "image", src: "/projects/todo-private-1/screenshot-1.svg", alt: "TODO" },
-      // Other media kinds (add the file to public/projects/<id>/ first; missing files fail the build):
-      // { type: "video", src: "/projects/todo-private-1/demo.mp4", poster: "/projects/todo-private-1/poster.png" },
-      // { type: "youtube", id: "dQw4w9WgXcQ", caption: "Demo" },
-    ],
-    status: "completed",
-    date: "TODO",
+    source: "github",
+    id: "dev-time-tracker",
+    repo: "ntua-el20014/dev-time-tracker",
+    title: "Dev Time Tracker",
+    description: "Desktop time tracker for developers who bill their time, including time spent supervising AI coding agents, with invoicing and Supabase sync.",
+    tags: ["TypeScript", "Supabase", "Desktop"],
   },
+  {
+    source: "github",
+    id: "taxall",
+    repo: "ntua-el20014/site-taxall",
+    title: "TaxAll",
+    description: "Static website for an accounting office, built as a React single-page app with Vite.",
+    tags: ["React", "Vite", "JavaScript", "CSS"],
+  },
+  {
+    source: "github",
+    id: "chordify",
+    repo: "ntua-el20014/Distributed-Systems",
+    title: "Chordify",
+    description: "Peer-to-peer song-sharing network built on the Chord DHT, with replication and linearizable or eventual consistency.",
+    tags: ["Python", "Distributed Systems", "DHT", "Sockets"],
+    media: [
+      { type: "image", src: "/projects/chordify/architecture.png", alt: "Diagram of a Chord ring: nodes and song keys placed on a circular identifier space" },
+      { type: "video", src: "/projects/chordify/visualizer.mp4", caption: "The visualizer showing nodes, stored items and replicas live" },
+    ],
+  },
+  {
+    source: "github",
+    id: "anamnesis",
+    repo: "ntua-el20014/HCI-Project",
+    title: "Anamnesis",
+    description: "Flutter app for saving memories (trips, places, events) on a map, with photos and a voice-recorded journal.",
+    tags: ["Dart", "Flutter", "HCI"],
+  },
+  {
+    source: "github",
+    id: "school-library",
+    repo: "Se7enBit/DatabasesProject",
+    title: "School Library",
+    description: "Full-stack library network where students and teachers rent, reserve, and rate books, with admin roles.",
+    tags: ["Python", "Flask", "MySQL", "JavaScript"],
+    media: [
+      { type: "image", src: "/projects/school-library/catalog.png", alt: "Book catalog page listing available titles" },
+      { type: "image", src: "/projects/school-library/book-page.png", alt: "A book's page with rent and reserve buttons, details, ratings and comments" },
+      { type: "image", src: "/projects/school-library/admin.png", alt: "School admin dashboard for approving comments, rentals and reservations" },
+    ],
+  },
+
+  // ---- Templates: copy one above, fill it in, and uncomment. ----
+  // Media files go in public/projects/<id>/ (a missing file fails the build).
+  //
+  // {
+  //   source: "github",
+  //   id: "my-repo",                       // `cat my-repo` in the terminal
+  //   repo: "Se7enBit/my-repo",
+  //   featured: true,                      // optional: highlighted + shown first
+  //   title: "My Repo",                    // optional: overrides the GitHub name
+  //   description: "One line.",            // optional: overrides the GitHub description
+  //   tags: ["TypeScript"],
+  //   media: [
+  //     { type: "image", src: "/projects/my-repo/cover.png", alt: "What the screenshot shows" },
+  //     { type: "video", src: "/projects/my-repo/demo.mp4", poster: "/projects/my-repo/poster.png" },
+  //     { type: "youtube", id: "VIDEO_ID", caption: "Demo" },
+  //   ],
+  // },
+  // {
+  //   source: "manual",                    // private / not on GitHub: nothing is fetched
+  //   id: "my-private-project",
+  //   title: "My Private Project",
+  //   description: "One line for the card.",
+  //   longDescription: "Longer text for the detail view.",
+  //   role: "Solo developer",
+  //   tags: ["C"],
+  //   highlights: ["What you did or achieved"],
+  //   links: [{ label: "Demo video", url: "https://youtu.be/VIDEO_ID" }],
+  //   status: "completed",                 // active | completed | archived | wip
+  //   date: "2026",
+  // },
 ];
